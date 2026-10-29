@@ -1,0 +1,85 @@
+.native-sheet-heading { padding: 16px; border-bottom: 1px solid var(--border); }
+.native-sheet-heading h2 { color: var(--gold); font-size: 1.15rem; margin: 0 0 5px; }
+.native-sheet-heading p { color: #a0a6b8; font-size: .75rem; margin: 0 0 8px; }
+.native-sheet-scroll { flex: 1; overflow-y: auto; padding: 14px; font-size: .8rem; }
+.native-sheet section { border-bottom: 1px solid var(--border); padding: 0 0 14px; margin-bottom: 14px; }
+.native-sheet h3 { font-size: .85rem; color: #d4af37; margin: 8px 0; }
+.native-status { display: flex; flex-direction: column; gap: 6px; text-transform: capitalize; }
+.native-resources { display: flex; justify-content: space-between; padding: 10px 0; color: #a8dadc; }
+.native-attributes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
+.native-attributes > div { display: flex; flex-direction: column; gap: 5px; padding: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px; }
+.native-attributes span { color: #8b92a5; text-transform: capitalize; font-size: .7rem; }
+.native-attributes strong { color: #d4af37; font-size: 1.1rem; }
+.native-sheet summary { color: #a8dadc; cursor: pointer; margin: 8px 0; }
+.native-sheet ul { padding-left: 16px; line-height: 1.7; }
+.native-sheet label, .native-editor label { display: flex; flex-direction: column; gap: 5px; margin: 8px 0; font-size: .75rem; color: #a0a6b8; }
+.native-sheet input, .native-sheet select, .native-editor input, .native-editor select, .native-combat-options input, .native-combat-options select { background: #181b24; color: #e2e4ec; border: 1px solid var(--border); border-radius: 4px; padding: 7px; min-width: 0; width: 100%; font: inherit; }
+.native-sheet .native-checkbox, .native-editor .native-checkbox { flex-direction: row; align-items: center; gap: 7px; }
+.native-checkbox input { width: auto; }
+.native-form-row { display: flex; gap: 8px; }
+.native-form-row > label { flex: 1; min-width: 0; }
+.native-help { color: #8b92a5; font-size: .7rem; line-height: 1.5; margin: 7px 0; }
+.native-button-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.native-sheet button { font-size: .75rem; padding: 5px 8px; }
+.native-sheet button:disabled, .combat-banner button:disabled { opacity: .45; cursor: not-allowed; }
+.native-sheet .send-btn { padding: 8px; margin-top: 6px; }
+.native-error { color: #ff6b6b; line-height: 1.5; }
+.native-crew { display: flex; gap: 7px; flex-direction: column; margin: 8px 0; }
+.native-editor { width: 740px; max-width: 95vw; max-height: 90vh; overflow: auto; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+.native-editor h2, .native-editor h3 { color: #d4af37; margin: 10px 0; }
+.native-editor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 12px; }
+.native-editor-actions { display: flex; gap: 8px; margin-top: 18px; }
+.native-combat-options { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 10px 0; font-size: .75rem; }
+.native-combat-options label { display: flex; align-items: center; gap: 4px; }
+.native-combat-options select { width: auto; }
+.native-combat-options input[type=number] { width: 55px; }
+.native-combat-options input[type=checkbox] { width: auto; }
+.native-combat-gear { margin: 10px 0; font-size: .8rem; }
+.native-combat-gear summary { color: #a8dadc; cursor: pointer; margin: 8px 0; }
+.native-combat-gear .native-form-row { flex-wrap: wrap; align-items: flex-end; }
+.native-combat-gear .native-form-row > label { flex: 1 1 150px; display: flex; flex-direction: column; gap: 5px; margin: 6px 0; font-size: .75rem; }
+.native-combat-gear input, .native-combat-gear select { background: #181b24; color: #e2e4ec; border: 1px solid var(--border); border-radius: 4px; padding: 7px; min-width: 0; width: 100%; font: inherit; }
+.native-combat-gear .native-form-row > button { margin-bottom: 6px; }
+@media (max-width: 600px) { .native-editor-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.native-vehicle-panel { flex-shrink: 0; margin: 10px 20px; border: 1px solid #457b9d; border-radius: 7px; background: #141b24; font-size: .8rem; }
+.native-vehicle-panel summary { padding: 10px; color: #a8dadc; cursor: pointer; font-weight: 600; }
+.native-vehicle-scroll { padding: 0 12px 12px; max-height: 52vh; overflow-y: auto; }
+.native-vehicle-panel label { display: flex; flex-direction: column; gap: 5px; margin: 7px 0; min-width: 0; color: #a0a6b8; font-size: .73rem; }
+.native-vehicle-panel input, .native-vehicle-panel select { background: #181b24; color: #e2e4ec; border: 1px solid var(--border); border-radius: 4px; padding: 7px; width: 100%; min-width: 0; font: inherit; }
+.native-vehicle-panel .native-checkbox { flex-direction: row; align-items: center; }
+.native-vehicle-panel .native-checkbox input { width: auto; }
+.native-vehicle-panel button:disabled { opacity: .4; cursor: not-allowed; }
+.native-vehicle-panel .native-form-row { flex-wrap: wrap; align-items: flex-end; }
+.native-vehicle-panel .native-form-row > label { flex: 1 1 120px; }
+.native-vehicle-panel .native-form-row > button { margin-bottom: 7px; }
+.native-craft-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; margin: 12px 0; }
+.native-craft-card { display: flex; flex-direction: column; text-align: left; gap: 6px; border: 1px solid #353d50; border-radius: 5px; padding: 10px; background: #181b24; color: #c7cddd; font: inherit; cursor: pointer; }
+.native-craft-card span { font-size: .7rem; line-height: 1.4; }
+.native-craft-card.native-craft-target { border-color: #d4af37; background: #25231d; }
+.native-vehicle-panel .native-craft-card:disabled { opacity: .75; }
+.native-crew-turn { border-top: 1px solid var(--border); margin-top: 10px; padding-top: 10px; }
+.native-crew-turn h3 { color: #a8dadc; font-size: .9rem; }
+.native-shield-grid, .native-range-editor { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.native-flight-log { padding: 10px 10px 10px 25px; font-size: .73rem; line-height: 1.6; }
+.native-vehicle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.native-weapon-editor { padding: 12px; border: 1px solid var(--border); border-radius: 5px; margin: 12px 0; }
+.native-weapon-editor legend { color: #a8dadc; padding: 0 6px; }
+.native-crew-assignment { border-bottom: 1px solid var(--border); }
+.native-flight-toolbar { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; background: #141b24; border-bottom: 1px solid var(--border); }
+.native-force-panel { padding: 10px 20px; border-bottom: 1px solid #353d50; background: #141a27; max-height: min(45vh, max(120px, calc(100dvh - 420px))); overflow-y: auto; flex-shrink: 0; font-size: .85rem; }
+.native-force-panel > summary { cursor: pointer; color: #b5dafa; font-weight: 600; }
+.native-force-panel label { display: flex; flex-direction: column; gap: 4px; margin: 7px 0; }
+.native-force-panel .native-checkbox { flex-direction: row; align-items: center; }
+.native-force-panel .native-form-row > label { min-width: 105px; }
+.native-force-panel button:disabled { opacity: .45; cursor: not-allowed; }
+.native-force-panel input, .native-force-panel select { background: #0d121d; color: #e3e8f4; border: 1px solid #424b60; padding: 6px; border-radius: 4px; min-width: 0; }
+.native-force-panel .native-form-row { flex-wrap: wrap; align-items: center; }
+.native-force-effect { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; padding: 8px; border: 1px solid #353d50; border-radius: 5px; }
+.native-training-card { padding: 10px; margin: 10px 0; border: 1px solid #424b60; border-radius: 5px; background: #101623; }
+.native-advancement-panel, .native-dark-panel { max-height: min(45vh, max(120px, calc(100dvh - 420px))); }
+.native-advancement-panel textarea { background: #0d121d; color: #e3e8f4; border: 1px solid #424b60; padding: 6px; border-radius: 4px; min-width: 0; resize: vertical; }
+.native-advancement-panel progress { width: 100%; accent-color: #a8dadc; }
+.native-creation-panel { max-height: min(60vh, calc(100dvh - 300px)); }
+.native-droid-panel { max-height: min(55vh, calc(100dvh - 350px)); }
+.native-force-panel textarea { background: #0d121d; color: #e3e8f4; border: 1px solid #424b60; border-radius: 4px; padding: 6px; resize: vertical; font: inherit; }

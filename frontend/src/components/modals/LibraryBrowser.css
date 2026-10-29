@@ -1,0 +1,31 @@
+.source-library { display: flex; flex-direction: column; gap: 18px; color: #a0a6b8; font-size: .85rem; }
+.source-library h2, .source-library h3 { color: #e2e4ec; margin: 0 0 6px; }
+.source-library h2 { font-size: 1.05rem; }
+.source-library h3 { font-size: .9rem; }
+.source-library p { margin: 4px 0; line-height: 1.5; }
+.source-library a { color: #d4af37; text-decoration: underline; text-underline-offset: 3px; }
+.library-intro, .library-folder-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.library-intro code { display: block; overflow-wrap: anywhere; margin-top: 6px; color: #8b92a5; font-size: .75rem; }
+.library-intro button, .library-folder-heading button { flex-shrink: 0; padding: 8px 12px; font-size: .75rem; }
+.library-progress { display: flex; flex-direction: column; gap: 6px; background: #181b24; border: 1px solid #d4af37; padding: 12px; border-radius: 6px; }
+.library-progress progress { width: 100%; accent-color: #d4af37; }
+.library-search { display: flex; flex-wrap: wrap; gap: 8px; }
+.library-search input { min-width: 180px; padding: 10px; }
+.library-search select { width: auto; max-width: 100%; background: #181b24; color: #e2e4ec; border: 1px solid var(--border); border-radius: 6px; padding: 8px; }
+.library-search button { padding: 8px 12px; }
+.library-folders { display: grid; gap: 12px; }
+.library-folder, .library-results article { padding: 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; }
+.library-folder-heading p { font-size: .75rem; }
+.library-folder details { margin-top: 12px; }
+.library-folder summary { cursor: pointer; color: #d4af37; }
+.library-folder ul { padding-left: 18px; margin: 8px 0 0; }
+.library-folder li { padding: 6px 0; overflow-wrap: anywhere; }
+.library-folder li > span { display: block; margin-top: 3px; font-size: .75rem; }
+.library-results { display: flex; flex-direction: column; gap: 10px; }
+.library-results article p { white-space: pre-wrap; max-height: 220px; overflow-y: auto; margin-top: 10px; }
+.library-results .compendium-badge { margin-left: 8px; }
+.source-library .library-error { color: #ff6b6b; }
+@media (max-width: 600px) {
+  .library-intro, .library-folder-heading { align-items: flex-start; flex-direction: column; }
+  .library-search input { width: 100%; flex-basis: 100%; }
+}

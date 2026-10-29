@@ -1,0 +1,65 @@
+import { useEffect, useRef, useState } from 'react';
+import { API_BASE } from '../../services/api';
+import type { GameSession } from '../../types';
+
+type Favor = { id: string; actor_name: string; moment_key: string; eligibility: string; offer_reason: string; adventure: number; scope_kind: string; scope_id: string; status: string; resolution_reason: string | null; same_scope: boolean; corruption_event_id: string | null; expenditure_id: string | null; actions_declared: number | null; normal_force_point_spent: boolean; source: string };
+type Actor = { id: string; name: string; force_points: number; character_points: number; dark_side_points: number; wound: string; can_take_turn: boolean; declaration_available: boolean; active_favor_id: string | null; pending_demand: boolean; pending_activation: boolean; elapsed_rounds: number; round_state: { actions_taken: number; declared_actions: number; force_active: boolean; dark_side_called: boolean; dark_side_active: boolean; character_points_spent: boolean; full_defense: boolean; defense_skill: string | null }; favors: Favor[] };
+type State = { updated_at: number; adventure: number; actors: Actor[]; source: string; rules: string[] };
+async function request<T>(action: string, body?: unknown, signal?: AbortSignal): Promise<T> {
+  const response = await fetch(`${API_BASE}/weg-d6/dark-side/favors/${action}`, body === undefined ? { signal } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal });
+  if (!response.ok) { const value = await response.json().catch(() => null) as { detail?: string | { msg: string }[] } | null; throw new Error(typeof value?.detail === 'string' ? value.detail : Array.isArray(value?.detail) ? value.detail.map(item => item.msg).join('; ') : `Rare favor request failed (${response.status})`); }
+  return response.json();
+}
+const words = (value: string) => value.replaceAll('_', ' ');
+
+export function D6FavorsPanel({ session, actorId, onSessionChanged }: { session: GameSession; actorId: string; onSessionChanged: (session: GameSession) => void }) {
+  const [data, setData] = useState<State | null>(null);
+  const [loaded, setLoaded] = useState('');
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [offerId, setOfferId] = useState(() => crypto.randomUUID());
+  const [moment, setMoment] = useState('');
+  const [eligibility, setEligibility] = useState('desperately_recruited');
+  const [offerReason, setOfferReason] = useState('');
+  const [rare, setRare] = useState(false);
+  const [decisionReason, setDecisionReason] = useState('');
+  const [momentCurrent, setMomentCurrent] = useState(false);
+  const [acceptDSP, setAcceptDSP] = useState(false);
+  const [actions, setActions] = useState(1);
+  const [normalFP, setNormalFP] = useState(false);
+  const ownRevision = useRef<number | null>(null);
+  const loadedActor = useRef('');
+  const query = JSON.stringify({ id: session.id, revision: session.updated_at, actorId, character: session.character });
+  useEffect(() => { const controller = new AbortController(); request<State>('state', undefined, controller.signal).then(value => { if (controller.signal.aborted) return; setData(value); if (ownRevision.current !== value.updated_at) { setNotice(''); setMomentCurrent(false); setAcceptDSP(false); setNormalFP(false); } if (loadedActor.current !== actorId) { setRare(false); setOfferReason(''); setDecisionReason(''); setMoment(''); loadedActor.current = actorId; } }).catch(err => { if (!controller.signal.aborted) setError(String(err)); }).finally(() => { if (!controller.signal.aborted) setLoaded(query); }); return () => controller.abort(); }, [query, actorId]);
+  const actor = data?.actors.find(item => item.id === actorId);
+  const offer = actor?.favors.find(item => item.status === 'offered');
+  const combat = Boolean(session.encounter?.active || session.vehicle_encounter);
+  const phaseStarted = Boolean(session.vehicle_encounter?.actions_started ?? session.encounter?.d6_actions_started);
+  const state = actor?.round_state;
+  const spentRound = Boolean(state && (state.actions_taken || state.dark_side_called || state.character_points_spent || state.full_defense || state.defense_skill));
+  const useBlocked = !actor?.can_take_turn || !actor.declaration_available || actor.pending_activation || actor.pending_demand || spentRound || phaseStarted || !offer?.same_scope;
+  const revision = Math.max(data?.updated_at ?? 0, session.updated_at ?? 0);
+  async function mutate(action: string, body: unknown) {
+    setPending(true); setError(''); setNotice('');
+    try { const response = await request<{ session: GameSession; eval_result: { summary: string } }>(action, body); ownRevision.current = response.session.updated_at ?? null; onSessionChanged(response.session); setNotice(response.eval_result.summary); setMomentCurrent(false); setAcceptDSP(false); setNormalFP(false); return true; }
+    catch (err) { setError(err instanceof Error ? err.message : String(err)); await request<State>('state').then(setData).catch(() => {}); return false; }
+    finally { setPending(false); }
+  }
+  async function decide(action: 'use' | 'decline' | 'withdraw') {
+    if (!offer || !actor) return;
+    if (await mutate('resolve', { actor_id: actor.id, offer_id: offer.id, action, reason: decisionReason, current_moment_confirmed: action === 'use' && momentCurrent, consequence_accepted: action === 'use' && acceptDSP, actions, force_point: action === 'use' && normalFP, expected_updated_at: revision })) setDecisionReason('');
+  }
+  return <details className="native-training-card" aria-label="Rare Dark Side Favors">
+    <summary>GM: rare Dark Side Favors</summary>
+    <p className="native-help">The corebook makes these free offers exceptional: very powerful evil individuals, or someone the Dark Side is desperately trying to recruit. An unused offer has no point penalty. Actual use immediately spends its Dark Side FP and adds a DSP regardless of intention.</p>
+    {error && <p className="native-error" role="alert">{error}</p>}{notice && <p role="status">{notice}</p>}
+    {!actor && <p className="native-help">Select a full native party member, current opponent or eligible crew actor above. Instructor summaries cannot receive an action boost.</p>}
+    {actor && <><p><strong>{actor.name}</strong> · {actor.force_points} held FP · {actor.dark_side_points} DSP · actual personal clock {actor.elapsed_rounds}</p>{actor.active_favor_id && <p className="native-help">Active rare favor {actor.active_favor_id} · {state?.actions_taken}/{state?.declared_actions} declared actions used · no call action consumed · CP dice prohibited this round.</p>}<fieldset disabled={pending || loaded !== query} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+      {!offer && <section aria-label="New rare favor review"><label>Actual source eligibility<select aria-label="Rare favor eligibility" value={eligibility} onChange={event => setEligibility(event.target.value)}><option value="desperately_recruited">The Dark Side is actively and desperately recruiting this individual</option><option value="very_powerful_evil">A very powerful evil individual</option></select></label><label>Unique actual exceptional moment<input aria-label="Rare favor moment" maxLength={160} value={moment} onChange={event => setMoment(event.target.value)} placeholder="GM identifies this actual rare story moment" /></label><label>GM source eligibility and offer evidence<textarea aria-label="Rare favor offer evidence" rows={2} maxLength={2000} value={offerReason} onChange={event => setOfferReason(event.target.value)} /></label><label className="native-checkbox"><input type="checkbox" aria-label="Confirm actual rare Dark Side offer" checked={rare} onChange={event => setRare(event.target.checked)} />GM confirms this is an actual exceptional rare offer to an eligible individual</label><button className="hp-btn" disabled={!rare || !moment.trim() || !offerReason.trim() || !actor.declaration_available} onClick={async () => { if (await mutate('offer', { actor_id: actor.id, offer_id: offerId, moment_key: moment, eligibility, gm_rare_offer_confirmed: true, reason: offerReason, expected_updated_at: revision })) { setOfferId(crypto.randomUUID()); setMoment(''); setOfferReason(''); setRare(false); } }}>Record rare unused offer · no FP or DSP granted</button></section>}
+      {offer && <section aria-label="Outstanding rare Dark Side offer"><strong>Unused favor {offer.id}</strong><p>Actual moment: {offer.moment_key} · {words(offer.eligibility)}</p><p>{offer.offer_reason}</p><p className="native-help">Adventure {offer.adventure} · original {offer.scope_kind} · {offer.same_scope ? 'original scope still present' : 'scope changed; this offer cannot be used here'}. This is not an ordinary banked Force Point.</p><label>Actual decision / use intention<textarea aria-label="Rare favor decision evidence" maxLength={2000} rows={2} value={decisionReason} onChange={event => setDecisionReason(event.target.value)} /></label><label className="native-checkbox"><input type="checkbox" aria-label="Rare favor moment still applies" checked={momentCurrent} onChange={event => setMomentCurrent(event.target.checked)} />GM confirms the original offered moment still applies now</label><label className="native-checkbox"><input type="checkbox" aria-label="Accept rare favor DSP consequence" checked={acceptDSP} onChange={event => setAcceptDSP(event.target.checked)} />Accept immediate use and +1 DSP no matter how this point is used; the normal corruption check may cause a fall</label><div className="native-form-row"><label>Declared actions for this round<input aria-label="Rare favor declared actions" type="number" min={1} max={10} value={actions} onChange={event => setActions(Number(event.target.value))} /></label></div><label className="native-checkbox"><input type="checkbox" aria-label="Rare favor also spend normal FP" checked={normalFP} disabled={state?.force_active || actor.force_points < 1} onChange={event => setNormalFP(event.target.checked)} />Also spend one held normal FP (leave off if already declared)</label><p className="native-help">Use takes no call action or skill roll and does not increase the call counter. It enables the round’s Dark Side boost and forbids CP dice. Personal pools double; equipment stays fixed. Use the normal check / Force / crew controls for the actual declared actions.</p>{useBlocked && <p className="native-help">Use needs an available actor in the original scope, before actions, defenses, CP, another Dark Side benefit or a pending activation/demand. Resolve the blocked procedure or explicitly advance the shared round; the app will not reset only this actor.</p>}<div className="native-button-row"><button className="hp-btn" disabled={useBlocked || !momentCurrent || !acceptDSP || !decisionReason.trim() || !Number.isInteger(actions) || actions < 1 || actions > 10} onClick={() => decide('use')}>Use this rare favor now · +1 DSP</button><button className="hp-btn" disabled={!decisionReason.trim()} onClick={() => decide('decline')}>Decline unused offer · no penalty</button><button className="hp-btn" disabled={!decisionReason.trim()} onClick={() => decide('withdraw')}>GM withdraws unused offer · no penalty</button></div></section>}
+      {!combat && spentRound && <button className="hp-btn" onClick={async () => { setPending(true); setError(''); try { const response = await fetch(`${API_BASE}/weg-d6/force/manage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actor_id: actor.id, action: 'advance', rounds: 1 }) }); const value = await response.json() as { session: GameSession; detail?: string }; if (!response.ok) throw new Error(value.detail ?? 'Scene time could not advance.'); onSessionChanged(value.session); setMomentCurrent(false); setAcceptDSP(false); } catch (err) { setError(err instanceof Error ? err.message : String(err)); } finally { setPending(false); } }}>Advance whole scene 1 round · 5 seconds</button>}
+    </fieldset>{!!actor.favors.length && <details><summary>Saved rare favors ({actor.favors.length})</summary>{[...actor.favors].reverse().map(item => <section className="native-training-card" key={item.id}><strong>{item.status} · {item.moment_key}</strong><p>Favor {item.id} · adventure {item.adventure} · {words(item.eligibility)}</p><p>{item.offer_reason}</p>{item.resolution_reason && <p>{item.resolution_reason}</p>}{item.status === 'used' ? <p>Immediate Dark Side boost used · +1 DSP already recorded · {item.actions_declared} declared actions · no call action. Corruption event {item.corruption_event_id}; expenditure {item.expenditure_id}.</p> : <p>Unused offer · no ordinary FP granted and no DSP penalty.</p>}<p className="native-help">{item.source}</p></section>)}</details>}</>}
+    <details><summary>Favors source and procedure</summary><p className="native-help">{data?.source}</p>{data?.rules.map(note => <p className="native-help" key={note}>{note}</p>)}</details>
+  </details>;
+}

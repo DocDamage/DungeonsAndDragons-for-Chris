@@ -1,0 +1,32 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+node_modules/
+.env
+.env.*
+!.env.example
+
+# Local browser verification artifacts
+.playwright-cli/
+output/playwright/
+tmp/
+.test-tmp/
+
+# Player adventures and generated local data
+/saves/
+*.db
+*.sqlite3*
+
+# Artwork imported from locally supplied campaign archives
+/static/images/*
+!/static/images/.gitkeep
+
+# Rebuildable local source index
+library.sqlite3*
